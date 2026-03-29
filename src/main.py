@@ -1,5 +1,6 @@
 import logging
 import os
+import sys
 import typing
 import random
 import signal
@@ -110,10 +111,10 @@ async def main():
 	try:
 		if not await ws.connect() or not await ws.wait_until_identified():
 			logging.error('Failed to connect or identify with obs-websocket server.')
-			return
+			return 1
 	except:
 		logging.exception('Exception while connecting to obs-websocket server:\n')
-		return
+		return 1
 
 	logging.info('Connected and identified to obs-websocket server')
 
@@ -122,13 +123,13 @@ async def main():
 	if not resp.ok():
 		logging.error('Failed to call GetInputList: {}'.format(resp.requestStatus.comment))
 		await ws.disconnect()
-		return
+		return 0
 
 	if not OBS_INPUT_UUID:
-		logging.error('STASH_247_OBS_INPUT_UUID variable is empty or undefined. Please populate it.')
 		log_input_uuids(resp.responseData['inputs'])
+		logging.error('STASH_247_OBS_INPUT_UUID variable is empty or undefined. Please populate it.')
 		await ws.disconnect()
-		return
+		return 0
 
 	found = False
 	for input in resp.responseData['inputs']:
@@ -136,10 +137,10 @@ async def main():
 			logging.info('Using {} input {} for reruns'.format(input['inputKind'], input['inputName']))
 			found = True
 	if not found:
-		logging.error('Failed to find an OBS input with UUID: {}'.format(OBS_INPUT_UUID))
 		log_input_uuids(resp.responseData['inputs'])
+		logging.error('Failed to find an OBS input with UUID: {}'.format(OBS_INPUT_UUID))
 		await ws.disconnect()
-		return
+		return 0
 
 	while True:
 		objectList = await fetch_playlist_objects()
@@ -176,6 +177,7 @@ async def main():
 	logging.info('Shutting down...')
 	await enqueue_file_url(ws, '') # Clear media source file
 	await ws.disconnect()
+	return 0
 
 if __name__ == "__main__":
-	asyncio.run(main())
+	sys.exit(asyncio.run(main()))
