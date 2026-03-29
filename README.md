@@ -2,6 +2,10 @@
 
 ### A Python script which makes use of the Stash API to play back VODs.
 
+<img width="1493" height="167" alt="bash-screenshot" src="https://github.com/user-attachments/assets/8bbf7bdc-1bec-48b5-895e-7ffcc50bf7ec" />
+
+<img width="1726" height="953" alt="obs-preview" src="https://github.com/user-attachments/assets/1c4d5591-b767-47ef-a705-caa7699d864d" />
+
 ## Getting Started (Linux/WSL)
 
 - You must have at least Python 3.9 installed.
