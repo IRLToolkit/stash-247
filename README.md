@@ -14,4 +14,5 @@
   - `STASH_247_OBS_WEBSOCKET_URL` - obs-websocket WS URL for the OBS instance that will have the video player
   - `STASH_247_OBS_WEBSOCKET_PASSWORD` - obs-websocket authentication password
   - `STASH_247_OBS_INPUT_UUID` - Input ("source" as the UI tends to call it) UUID of a media source that this script will control
+    - If you leave this value empty, then running the script will print a list of available OBS sources and their UUIDs to help you find the value you want
 - `./run.sh` - Execute run.sh, which will create a new venv for you, install the dependencies, and then run the main.py script
