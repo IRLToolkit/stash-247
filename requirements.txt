@@ -1,0 +1,3 @@
+aiohttp
+simpleobsws
+python-dotenv
