@@ -19,7 +19,7 @@ TAG = os.getenv('STASH_247_DATASTORE_TAG')
 
 OBS_WEBSOCKET_URL = os.getenv('STASH_247_OBS_WEBSOCKET_URL')
 OBS_WEBSOCKET_PASSWORD = os.getenv('STASH_247_OBS_WEBSOCKET_PASSWORD')
-OBS_INPUT_UUID = os.getenv('STASH_247_OBS_INPUT_UUID')
+OBS_INPUT_UUID = os.getenv('STASH_247_OBS_INPUT_UUID', '')
 
 logging.basicConfig(level = logging.DEBUG)
 logging.getLogger('simpleobsws').setLevel(logging.INFO)
@@ -31,6 +31,11 @@ class BadEnqueueException(Exception):
 
 class ExitingException(Exception):
 	pass
+
+def log_input_uuids(data):
+	logging.info('Available OBS inputs:')
+	for input in data:
+		logging.info(' - UUID: {} | Name: {}'.format(input['inputUuid'], input['inputName']))
 
 async def fetch_playlist_objects() -> list[typing.Any]:
 	headers = {
@@ -116,6 +121,13 @@ async def main():
 	resp = await ws.call(req)
 	if not resp.ok():
 		logging.error('Failed to call GetInputList: {}'.format(resp.requestStatus.comment))
+		await ws.disconnect()
+		return
+
+	if not OBS_INPUT_UUID:
+		logging.error('STASH_247_OBS_INPUT_UUID variable is empty or undefined. Please populate it.')
+		log_input_uuids(resp.responseData['inputs'])
+		await ws.disconnect()
 		return
 
 	found = False
@@ -125,6 +137,8 @@ async def main():
 			found = True
 	if not found:
 		logging.error('Failed to find an OBS input with UUID: {}'.format(OBS_INPUT_UUID))
+		log_input_uuids(resp.responseData['inputs'])
+		await ws.disconnect()
 		return
 
 	while True:
